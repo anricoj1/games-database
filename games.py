@@ -47,58 +47,60 @@ def index():
     return render_template('home.html', console=console, steam=steam, cavg=cavg, savg=savg)
 
 
-#@app.route('/search', methods=['GET', 'POST'])
-#def index():
-#    c = mysql.connection.cursor()
-#    form = SearchForm(request.form)
-#    if request.method == 'POST' and form.validate():
-#        return render_template('home.html')
+@app.route('/search/', methods=['GET', 'POST'])
+def search():
+    c = mysql.connection.cursor()
+    form = SearchForm(request.form)
+    if request.method == 'POST' and form.validate():
+        return search_results(form)
 
-#    return render_template('home.html', form=form)
+    return render_template('search.html', form=form)
 
 @app.route('/search_results/<form>')
 def search_results(form):
     results = []
     search_string = form.data['search']
+    search_type = form.data['select']
 
     c = mysql.connection.cursor()
-    likeString = '%%' + search_string + '%%'
-    c.execute('SELECT * FROM games WHERE %s LIKE %s LIMIT %s', [likeString])
-    results = c.fetchall()
+    c.execute("SELECT * FROM games WHERE 'search_type' LIKE 'search_string';")
+    games = c.fetchall()
+    print(games)
 
-    return render_template('all_games.html', results=results)
+    return render_template('all_games.html', games=games, form=form)
 
-@app.route('/all_games')
+@app.route('/all_games', methods=['GET', 'POST'])
 def all_games():
     c = mysql.connection.cursor()
+    form = SearchForm(request.form)
+    if request.method == 'POST' and form.validate():
+        return search_results(form)
+    else:
+        c = mysql.connection.cursor()
+        type = 'Console'
+        c.execute('SELECT * FROM games')
+        games = c.fetchall()
+        return render_template('all_games.html', games=games, form=form, type=type)
 
-    c.execute('SELECT * FROM games')
-
-    games = c.fetchall()
-
-    type = 'Console'
-
-    return render_template('all_games.html', games=games, type=type)
-
-@app.route('/sports')
+@app.route('/sports', methods=['GET', 'POST'])
 def sports():
     c = mysql.connection.cursor()
-    type = 'Console Sports'
+    form = SearchForm(request.form)
+    if request.method == 'POST' and form.validate():
+        return search_results(form)
+    else:
+        c = mysql.connection.cursor()
+        type = 'Console Sports'
+        c.execute('SELECT * FROM games WHERE genre LIKE "Sports"')
+        games = c.fetchall()
+        c.execute('SELECT COUNT(idGame) FROM games')
+        total = c.fetchone()
+        c.execute('SELECT COUNT(idGame) FROM games WHERE genre LIKE "Sports";')
+        div = c.fetchone()
+        avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
+        gavg = "{:.0%}".format(avg)
 
-    c.execute('SELECT * FROM games WHERE genre LIKE "Sports" LIMIT 10;')
-
-    games = c.fetchall()
-
-    c.execute('SELECT COUNT(idGame) FROM games')
-    total = c.fetchone()
-
-    c.execute('SELECT COUNT(idGame) FROM games WHERE genre LIKE "Sports";')
-    div = c.fetchone()
-
-    avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
-    gavg = "{:.0%}".format(avg)
-
-    return render_template('all_games.html', games=games, gavg=gavg, type=type)
+        return render_template('all_games.html', games=games, form=form, gavg=gavg, type=type)
 
 @app.route('/shooter')
 def shooter():
@@ -147,6 +149,17 @@ def steam():
     type = 'Steam'
 
     c.execute('SELECT * FROM steam')
+
+    games = c.fetchall()
+
+    return render_template('steam.html', games=games, type=type)
+
+@app.route('/RPG')
+def rpg():
+    c = mysql.connection.cursor()
+    type = 'RPG'
+
+    c.execute('SELECT * FROM steam WHERE linux=1')
 
     games = c.fetchall()
 
