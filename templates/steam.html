@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1>{{type}} Games <small> </small></h1>
+  <hr>
+  <table class="table table-striped">
+    <tr>
+			<th>queryID</th>
+      <th>Name</th>
+      <th>Release Date</th>
+      <th>Recommend Count</th>
+      <th>Steam Owners</th>
+      <th>Player Est.</th>
+      <th>Currency</th>
+      <th>Initial $</th>
+      <th>Final $</th>
+    </tr>
+    {% for g in games %}
+      <tr>
+				<td>{{g.queryID}}</td>
+        <td>{{g.responseName}}</td>
+        <td>{{g.releaseDate}}</td>
+        <td>{{g.recomCount}}</td>
+        <td>{{g.steamSpyOwner}}</td>
+        <td>{{g.playerEst}}</td>
+        <td>{{g.currency}}</td>
+        <td>{{g.inital}}</td>
+        <td>{{g.final}}</td>
+        
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

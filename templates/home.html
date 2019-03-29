@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <div class="jumbotron text-center">
+    <h1>Games Database</h1>
+    <p class="lead">The data sets I used can be found at these links:</p>
+    <p></p>
+    <a href="https://www.kaggle.com/gregorut/videogamesales/version/2" class="btn btn-primary btn-lg">Console Games</a>
+    <a href="https://data.world/craigkelly/steam-game-data" class="btn btn-success btn-lg">Steam Games</a>
+
+  </div>
+  <h1><small> Console Games: {{cavg}} in DB </small></h1>
+  <table class="table table-striped">
+    <tr>
+      <th>Rank</th>
+      <th>Name</th>
+      <th>Platform</th>
+      <th>Year</th>
+      <th>Genre</th>
+      <th>Publisher</th>
+      <th>Global Sales</th>
+    </tr>
+    {% for c in console %}
+      <tr>
+        <td>{{c.rank}}</td>
+        <td>{{c.name}}</td>
+        <td>{{c.platform}}</td>
+        <td>{{c.year}}</td>
+        <td>{{c.genre}}</td>
+        <td>{{c.publisher}}</td>
+        <td>{{c.globalSales}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+  <h2><small> Steam Games: {{savg}} in DB </small></h2>
+  <table class="table table striped">
+    <tr>
+      <th>Rank</th>
+      <th>Name</th>
+      <th>Release Date</th>
+      <th>Steam Owners</th>
+      <th>Player Est.</th>
+    </tr>
+    {% for s in steam %}
+      <tr>
+        <td>{{s.idsteam}}
+        <td>{{s.responseName}}</td>
+        <td>{{s.releaseDate}}</td>
+        <td>{{s.steamSpyOwner}}</td>
+        <td>{{s.playerEst}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+{% endblock %}
