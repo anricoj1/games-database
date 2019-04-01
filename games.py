@@ -1,6 +1,7 @@
 from flask import Flask, render_template, flash, redirect, url_for, request, logging
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField, validators
+from src.search import namePercent, platPercent, yearPercent, genrePercent, publisherPercent
 
 app = Flask(__name__)
 
@@ -28,6 +29,15 @@ class SearchForm(Form):
     select = SelectField('Search Query:', choices=choices)
     search = StringField('')
 
+class SearchSales(Form):
+    choices = [('naSales', 'NASales'),
+               ('euSales', 'EUSales'),
+               ('jpSales', 'JPSales'),
+               ('otherSales', 'OtherSales'),
+               ('globalSales', 'GlobalSales')]
+    select = SelectField('Search Query: ', choices=choices)
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     c = mysql.connection.cursor()
@@ -39,12 +49,14 @@ def index():
     c.execute('SELECT COUNT(idGame) FROM games UNION SELECT COUNT(idsteam) FROM steam')
     con = c.fetchone()
     st = c.fetchone()
+    g = con.get('COUNT(idGame)')
+    s = st.get('COUNT(idGame)')
     sum = con.get('COUNT(idGame)')+st.get('COUNT(idGame)')
 
     cavg = "{:.0%}".format(con.get('COUNT(idGame)')/sum)
     savg = "{:.0%}".format(st.get('COUNT(idGame)')/sum)
 
-    return render_template('home.html', console=console, steam=steam, cavg=cavg, savg=savg)
+    return render_template('home.html', console=console, steam=steam, cavg=cavg, savg=savg, g=g, s=s, sum=sum)
 
 
 @app.route('/search/', methods=['GET', 'POST'])
@@ -62,12 +74,109 @@ def search_results(form):
     search_string = form.data['search']
     search_type = form.data['select']
 
-    c = mysql.connection.cursor()
-    c.execute("SELECT * FROM games WHERE 'search_type' LIKE 'search_string';")
-    games = c.fetchall()
-    print(games)
 
-    return render_template('all_games.html', games=games, form=form)
+    c = mysql.connection.cursor()
+    c.execute('SELECT COUNT(idGame) from games')
+    total = c.fetchone()
+    if search_type == 'name':
+        c.execute("SELECT * FROM games WHERE name LIKE %s;", [search_string])
+        games = c.fetchall()
+        return render_template('all_games.html', games=games, form=form)
+    elif search_type == 'platform':
+        c.execute('SELECT * FROM games WHERE platform LIKE %s;', [search_string])
+        games = c.fetchall()
+        c.execute('SELECT COUNT(idGame) FROM games WHERE platform LIKE %s', [search_string])
+        div = c.fetchone()
+        avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
+        gavg = "{:0%}".format(avg)
+
+        return render_template('all_games.html', games=games, form=form, gavg=gavg)
+    elif search_type == 'year':
+        c.execute('SELECT * FROM games WHERE year LIKE %s;', [search_string])
+        games = c.fetchall()
+        c.execute('SELECT COUNT(idGame) FROM games WHERE year LIKE %s', [search_string])
+        div = c.fetchone()
+        avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
+        gavg = "{:0%}".format(avg)
+
+        return render_template('all_games.html', games=games, form=form, gavg=gavg)
+    elif search_type == 'genre':
+        c.execute('SELECT * FROM games WHERE genre LIKE %s;', [search_string])
+        games = c.fetchall()
+        c.execute('SELECT COUNT(idGame) FROM games WHERE genre LIKE %s', [search_string])
+        div = c.fetchone()
+        avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
+        gavg = "{:0%}".format(avg)
+        return render_template('all_games.html', games=games, form=form, gavg=gavg)
+    elif search_type == 'publisher':
+        c.execute('SELECT * FROM games WHERE publisher LIKE %s;', [search_string])
+        games = c.fetchall()
+        c.execute('SELECT COUNT(idGame) FROM games WHERE publisher LIKE %s', [search_string])
+        div = c.fetchone()
+        avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
+        gavg = "{:0%}".format(avg)
+        return render_template('all_games.html', games=games, form=form, gavg=gavg)
+    else:
+        c.execute('SELECT * FROM games')
+        games = c.fetchall()
+        return render_template('all_games.html', games=games, form=form)
+
+def search_sales(form):
+    results = []
+    search_type = form.data['select']
+
+    c = mysql.connection.cursor()
+    c.execute('SELECT COUNT(idGame) from games')
+    total = c.fetchone()
+    if search_type == 'naSales':
+        c.execute("SELECT * FROM games WHERE naSales BETWEEN 10 AND 30")
+        games = c.fetchall()
+        c.execute('SELECT COUNT(idGame) FROM games WHERE naSales BETWEEN 10 AND 30')
+        div = c.fetchone()
+        print(div)
+        avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
+        gavg = "{:0%}".format(avg)
+
+        return render_template('sales.html', games=games, form=form, gavg=gavg, search_type=search_type)
+    elif search_type == 'euSales':
+        c.execute('SELECT * FROM games WHERE euSales BETWEEN 10 AND 30')
+        games = c.fetchall()
+        c.execute('SELECT COUNT(idGame) FROM games WHERE euSales BETWEEN 10 AND 30')
+        div = c.fetchone()
+        avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
+        gavg = "{:0%}".format(avg)
+
+        return render_template('sales.html', games=games, form=form, gavg=gavg, search_type=search_type)
+    elif search_type == 'jpSales':
+        c.execute('SELECT * FROM games WHERE jpSales BETWEEN 10 AND 30')
+        games = c.fetchall()
+        c.execute('SELECT COUNT(idGame) FROM games WHERE jpSales BETWEEN 10 AND 30')
+        div = c.fetchone()
+        avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
+        gavg = "{:0%}".format(avg)
+
+        return render_template('sales.html', games=games, form=form, gavg=gavg, search_type=search_type)
+    elif search_type == 'otherSales':
+        c.execute('SELECT * FROM games WHERE otherSales BETWEEN 10 AND 30')
+        games = c.fetchall()
+        c.execute('SELECT COUNT(idGame) FROM games WHERE otherSales BETWEEN 10 AND 30')
+        div = c.fetchone()
+        avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
+        gavg = "{:0%}".format(avg)
+
+        return render_template('sales.html', games=games, form=form, gavg=gavg, search_type=search_type)
+    elif search_type == 'globalSales':
+        c.execute('SELECT * FROM games WHERE globalSales BETWEEN 10 AND 30')
+        games = c.fetchall()
+        c.execute('SELECT COUNT(idGame) FROM games WHERE globalSales BETWEEN 10 AND 30')
+        div = c.fetchone()
+        avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
+        gavg = "{:0%}".format(avg)
+        return render_template('sales.html', games=games, form=form, gavg=gavg, search_type=search_type)
+    else:
+        c.execute('SELECT * FROM games')
+        games = c.fetchall()
+        return render_template('sales.html.html', games=games, form=form)
 
 @app.route('/all_games', methods=['GET', 'POST'])
 def all_games():
@@ -82,88 +191,150 @@ def all_games():
         games = c.fetchall()
         return render_template('all_games.html', games=games, form=form, type=type)
 
-@app.route('/sports', methods=['GET', 'POST'])
+@app.route('/sales', methods=['GET', 'POST'])
 def sports():
     c = mysql.connection.cursor()
-    form = SearchForm(request.form)
+    form = SearchSales(request.form)
     if request.method == 'POST' and form.validate():
-        return search_results(form)
+        return search_sales(form)
     else:
-        c = mysql.connection.cursor()
-        type = 'Console Sports'
-        c.execute('SELECT * FROM games WHERE genre LIKE "Sports"')
+        c.execute('SELECT * FROM games')
         games = c.fetchall()
-        c.execute('SELECT COUNT(idGame) FROM games')
-        total = c.fetchone()
-        c.execute('SELECT COUNT(idGame) FROM games WHERE genre LIKE "Sports";')
-        div = c.fetchone()
-        avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
-        gavg = "{:.0%}".format(avg)
+        return render_template('sales.html', games=games, form=form)
 
-        return render_template('all_games.html', games=games, form=form, gavg=gavg, type=type)
+class SearchSteam(Form):
+    choices = [('multiplayer', 'Multiplayer'),
+               ('singleplayer', 'SinglePlayer'),
+               ('mmo', 'MMO'),
+               ('VRSupport', 'VR'),
+               ('isFree', 'Free'),
+               ('earlyAccess', 'EarlyAccess'),
+               ('windows', 'Windows'),
+               ('linux', 'Linux'),
+               ('mac', 'Mac')]
+    select = SelectField('Search Steam', choices=choices)
 
-@app.route('/shooter')
-def shooter():
+def search_steam(form):
+    results = []
+    search_type = form.data['select']
+
     c = mysql.connection.cursor()
-    type = 'Console Shooter'
+    if search_type == 'multiplayer':
+        c.execute('SELECT * FROM steam WHERE multiplayer=1')
+        games = c.fetchall()
 
-    c.execute('SELECT * FROM games WHERE genre LIKE "Shooter" LIMIT 10;')
+        return render_template('steam.html', games=games, form=form)
+    elif search_type == 'singleplayer':
+        c.execute('SELECT * FROM steam WHERE singleplayer=1')
+        games = c.fetchall()
 
-    games = c.fetchall()
+        return render_template('steam.html', games=games, form=form)
+    elif search_type == 'mmo':
+        c.execute('SELECT * FROM steam WHERE mmo=1')
+        games = c.fetchall()
 
-    c.execute('SELECT COUNT(idGame) FROM games')
-    total = c.fetchone()
+        return render_template('steam.html', games=games, form=form)
+    elif search_type == 'VRSupport':
+        c.execute('SELECT * FROM steam WHERE VRSupport=1')
+        games = c.fetchall()
 
-    c.execute('SELECT COUNT(idGame) FROM games WHERE genre LIKE "Shooter";')
-    div = c.fetchone()
+        return render_template('steam.html', games=games, form=form)
+    elif search_type == 'isFree':
+        c.execute('SELECT * FROM steam WHERE isFree=1')
+        games = c.fetchall()
 
-    avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
-    gavg = "{:.0%}".format(avg)
+        return render_template('steam.html', games=games, form=form)
 
-    return render_template('all_games.html', games=games, gavg=gavg, type=type)
+    elif search_type == 'earlyAccess':
+        c.execute('SELECT * FROM steam WHERE earlyAccess=1')
+        games = c.fetchall()
 
-@app.route('/publisher')
-def publisher():
-    c = mysql.connection.cursor()
-    type = 'By Publisher'
+        return render_template('steam.html', games=games, form=form)
 
-    c.execute('SELECT * FROM games WHERE publisher LIKE "Activision" LIMIT 10;')
+    elif search_type == 'windows':
+        c.execute('SELECT * FROM steam WHERE windows=1')
+        games = c.fetchall()
 
-    games = c.fetchall()
+        return render_template('steam.html', games=games, form=form)
+    elif search_type == 'linux':
+        c.execute('SELECT * FROM steam WHERE linux=1')
+        games = c.fetchall()
 
-    c.execute('SELECT COUNT(idGame) FROM games')
-    total = c.fetchone()
+        return render_template('steam.html', games=games, form=form)
+    elif search_type == 'mac':
+        c.execute('SELECT * FROM steam WHERE mac=1')
+        games = c.fetchall()
 
-    c.execute('SELECT COUNT(idGame) FROM games WHERE publisher LIKE "Activision";')
-    div = c.fetchone()
+        return render_template('steam.html', games=games, form=form)
+    else:
+        c.execute('SELECT * FROM steam')
+        games = c.fetchall()
 
-    avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
-    gavg = "{:.0%}".format(avg)
+        return render_template('steam.html', games=games, form=form)
 
-    return render_template('all_games.html', games=games, gavg=gavg, type=type)
-
-
-@app.route('/steam')
+@app.route('/steam', methods=['GET', 'POST'])
 def steam():
     c = mysql.connection.cursor()
-    type = 'Steam'
+    form = SearchSteam(request.form)
+    if request.method == 'POST' and form.validate():
+        return search_steam(form)
+    else:
+        c.execute('SELECT * FROM steam')
+        games = c.fetchall()
+        return render_template('steam.html', games=games, form=form)
 
-    c.execute('SELECT * FROM steam')
+class SearchRequire(Form):
+    choices = [('responseName', 'Name'),
+               ('windows', 'Windows'),
+               ('linux', 'Linux'),
+               ('mac', 'Mac')]
+    select = SelectField('Search Query:', choices=choices)
+    search = StringField('')
 
-    games = c.fetchall()
 
-    return render_template('steam.html', games=games, type=type)
+def search_req(form):
+    results = []
+    search_type = form.data['select']
+    search_string = form.data['search']
 
-@app.route('/RPG')
-def rpg():
     c = mysql.connection.cursor()
-    type = 'RPG'
+    if search_type == 'responseName':
+        c.execute('SELECT idsysRequire, idsteam, winReq, linuxReq, macReq, responseName FROM sysRequire r INNER JOIN steam s ON r.idsysRequire=s.idsteam WHERE responseName=%s', [search_string])
+        games = c.fetchall()
+        return render_template('requirements.html', form=form, games=games)
+    elif search_type == 'windows':
+        c.execute('SELECT idsysRequire, idsteam, winReq, responseName FROM sysRequire r INNER JOIN steam s ON r.idsysRequire=s.idsteam')
+        games = c.fetchall()
+        return render_template('requirements.html', form=form, games=games)
+    elif search_type == 'linux':
+        c.execute('SELECT idsysRequire, idsteam, linuxReq, responseName FROM sysRequire r INNER JOIN steam s ON r.idsysRequire=s.idsteam')
+        games = c.fetchall()
+        return render_template('requirements.html', form=form, games=games)
+    elif search_type == 'mac':
+        c.execute('SELECT idsysRequire, idsteam, macReq, responseName FROM sysRequire r INNER JOIN steam s ON r.idsysRequire=s.idsteam')
+        games = c.fetchall()
+        return render_template('requirements.html', form=form, games=games)
+    else:
+        c.execute('SELECT idsysRequire, idsteam, winReq, linuxReq, macReq, responseName FROM sysRequire r INNER JOIN steam s ON r.idsysRequire=s.idsteam')
+        games = c.fetchall()
+        return render_template('requirements.html', form=form, games=games)
 
-    c.execute('SELECT * FROM steam WHERE linux=1')
+@app.route('/min_requirements', methods=['GET', 'POST'])
+def min_requirements():
+    c = mysql.connection.cursor()
+    form = SearchRequire(request.form)
+    if request.method == 'POST' and form.validate():
+        return search_req(form)
+    else:
+        c.execute('SELECT idsysRequire, idsteam, winReq, linuxReq, macReq, responseName FROM sysRequire r INNER JOIN steam s ON r.idsysRequire=s.idsteam')
+        games = c.fetchall()
+        return render_template('requirements.html', games=games, form=form)
 
-    games = c.fetchall()
 
-    return render_template('steam.html', games=games, type=type)
+@app.route('/structure', methods=['GET', 'POST'])
+def structure():
+    return render_template('structure.html')
+
 if __name__ == '__main__':
     app.secret_key='secret'
     app.run(debug=True)

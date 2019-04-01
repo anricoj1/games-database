@@ -4,12 +4,13 @@
   <div class="jumbotron text-center">
     <h1>Games Database</h1>
     <p class="lead">The data sets I used can be found at these links:</p>
+    <p> Total Games = {{sum}}
     <p></p>
     <a href="https://www.kaggle.com/gregorut/videogamesales/version/2" class="btn btn-primary btn-lg">Console Games</a>
     <a href="https://data.world/craigkelly/steam-game-data" class="btn btn-success btn-lg">Steam Games</a>
 
   </div>
-  <h1><small> Console Games: {{cavg}} in DB </small></h1>
+  <h1><small> Console Games: {{cavg}} in DB: {{g}} </small></h1>
   <table class="table table-striped">
     <tr>
       <th>Rank</th>
@@ -32,7 +33,7 @@
       </tr>
     {% endfor %}
   </table>
-  <h2><small> Steam Games: {{savg}} in DB </small></h2>
+  <h2><small> Steam Games: {{savg}} in DB: {{s}} </small></h2>
   <table class="table table striped">
     <tr>
       <th>Rank</th>

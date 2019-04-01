@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1>{{search_type}} <small> Percent in DB: {{gavg}} </small></h1>
+  <hr>
+  <h2>Search Query</h2>
+  {% from "includes/_formhelpers.html" import render_field %}
+  <form method="POST" action="">
+    <div class="form-group">
+      {{render_field(form.select, class="form-control")}}
+    </div>
+    <p><input type=submit class="btn btn-primary" value=Search></p>
+  </form>
+  <table class="table table-striped">
+    <tr>
+      <th>Rank</th>
+      <th>Name</th>
+      <th>Platform</th>
+      <th>Year</th>
+      <th>Genre</th>
+      <th>Publisher</th>
+      <th>NA Sales</th>
+      <th>EU Sales</th>
+      <th>JP Sales</th>
+      <th>Other Sales</th>
+      <th>Global Sales</th>
+    </tr>
+    {% for g in games %}
+      <tr>
+        <td>{{g.rank}}</td>
+        <td>{{g.name}}</td>
+        <td>{{g.platform}}</td>
+        <td>{{g.year}}</td>
+        <td>{{g.genre}}</td>
+        <td>{{g.publisher}}</td>
+        <td>{{g.naSales}}</td>
+        <td>{{g.euSales}}</td>
+        <td>{{g.jpSales}}</td>
+        <td>{{g.otherSales}}</td>
+        <td>{{g.globalSales}}</td>
+
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

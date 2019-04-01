@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <h1>{{search_type}} Games <small> Percent in DB: </small></h1>
+  <h1>Min Requirements <small> </small></h1>
   <hr>
   <h2>Search Query</h2>
   {% from "includes/_formhelpers.html" import render_field %}
@@ -9,32 +9,24 @@
     <div class="form-group">
       {{render_field(form.select, class="form-control")}}
     </div>
+    <div class="form-group">
+      {{render_field(form.search, class="form-control")}}
+    </div>
     <p><input type=submit class="btn btn-primary" value=Search></p>
   </form>
   <table class="table table-striped">
     <tr>
-			<th>queryID</th>
       <th>Name</th>
-      <th>Release Date</th>
-      <th>Recommend Count</th>
-      <th>Steam Owners</th>
-      <th>Player Est.</th>
-      <th>Currency</th>
-      <th>Initial $</th>
-      <th>Final $</th>
+      <th>Windows</th>
+      <th>Linux</th>
+      <th>Mac</th>
     </tr>
     {% for g in games %}
       <tr>
-				<td>{{g.queryID}}</td>
         <td>{{g.responseName}}</td>
-        <td>{{g.releaseDate}}</td>
-        <td>{{g.recomCount}}</td>
-        <td>{{g.steamSpyOwner}}</td>
-        <td>{{g.playerEst}}</td>
-        <td>{{g.currency}}</td>
-        <td>{{g.inital}}</td>
-        <td>{{g.final}}</td>
-
+        <td>{{g.winReq}}</td>
+        <td>{{g.linuxReq}}</td>
+        <td>{{g.macReq}}</td>
       </tr>
     {% endfor %}
   </table>
