@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <h1>{{search_type}} Games <small> Percent in DB: </small></h1>
+  <h1>{{search_type}} Games <small> Percent in DB: {{avg}}</small></h1>
   <hr>
   <h2>Search Query</h2>
   {% from "includes/_formhelpers.html" import render_field %}
