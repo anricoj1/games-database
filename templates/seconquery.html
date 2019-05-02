@@ -1,0 +1,31 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="container">
+<h1> <small> Nintendo jpSales > naSales Between years 2000 - 2016 </small></h1>
+  <table class="table table-striped">
+    <tr>
+			<th>Rank</th>
+      <th>Name</th>
+      <th>Platform</th>
+      <th>Year</th>
+      <th>Genre</th>
+      <th>Publisher</th>
+      <th>NA Sales</th>
+      <th>JP Sales</th>
+    </tr>
+    {% for g in games %}
+      <tr>
+				<td>{{g.rank}}</td>
+        <td>{{g.name}}</td>
+        <td>{{g.platform}}</td>
+        <td>{{g.year}}</td>
+        <td>{{g.genre}}</td>
+        <td>{{g.publisher}}</td>
+        <td>{{g.naSales}}</td>
+        <td>{{g.jpSales}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

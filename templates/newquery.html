@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1>Min Requirements <small> </small></h1>
+  <table class="table table-striped">
+    <tr>
+      <th>Name</th>
+      <th>VR Support</th>
+      <th>is Free</th>
+      <th>Windows</th>
+      <th>Linux</th>
+      <th>Mac</th>
+    </tr>
+    {% for q in query %}
+      <tr>
+        <td>{{q.responseName}}</td>
+        <td>{{q.VRSupport}}</td>
+        <td>{{q.isFree}}</td>
+        <td>{{q.winReq}}</td>
+        <td>{{q.linuxReq}}</td>
+        <td>{{q.macReq}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

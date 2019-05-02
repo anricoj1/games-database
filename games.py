@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, redirect, url_for, request, logging
+from flask import Flask, render_template, flash, redirect, url_for, request, logging, jsonify
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField, validators
 from src.search import namePercent, platPercent, yearPercent, genrePercent, publisherPercent
@@ -138,46 +138,50 @@ def search_sales(form):
         games = c.fetchall()
         c.execute('SELECT COUNT(idGame) FROM games WHERE naSales BETWEEN 10 AND 30')
         div = c.fetchone()
-        print(div)
+        count = div.get('COUNT(idGame)')
         avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
         gavg = "{:0%}".format(avg)
 
-        return render_template('sales.html', games=games, form=form, gavg=gavg, search_type=search_type)
+        return render_template('sales.html', games=games, form=form, gavg=gavg, count=count, search_type=search_type)
     elif search_type == 'euSales':
         c.execute('SELECT * FROM games WHERE euSales BETWEEN 10 AND 30')
         games = c.fetchall()
         c.execute('SELECT COUNT(idGame) FROM games WHERE euSales BETWEEN 10 AND 30')
         div = c.fetchone()
+        count = div.get('COUNT(idGame)')
         avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
         gavg = "{:0%}".format(avg)
 
-        return render_template('sales.html', games=games, form=form, gavg=gavg, search_type=search_type)
+        return render_template('sales.html', games=games, form=form, gavg=gavg, count=count, search_type=search_type)
     elif search_type == 'jpSales':
         c.execute('SELECT * FROM games WHERE jpSales BETWEEN 10 AND 30')
         games = c.fetchall()
         c.execute('SELECT COUNT(idGame) FROM games WHERE jpSales BETWEEN 10 AND 30')
         div = c.fetchone()
+        count = div.get('COUNT(idGame)')
         avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
         gavg = "{:0%}".format(avg)
 
-        return render_template('sales.html', games=games, form=form, gavg=gavg, search_type=search_type)
+        return render_template('sales.html', games=games, form=form, gavg=gavg, count=count, search_type=search_type)
     elif search_type == 'otherSales':
         c.execute('SELECT * FROM games WHERE otherSales BETWEEN 10 AND 30')
         games = c.fetchall()
         c.execute('SELECT COUNT(idGame) FROM games WHERE otherSales BETWEEN 10 AND 30')
         div = c.fetchone()
+        count = div.get('COUNT(idGame)')
         avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
         gavg = "{:0%}".format(avg)
 
-        return render_template('sales.html', games=games, form=form, gavg=gavg, search_type=search_type)
+        return render_template('sales.html', games=games, form=form, gavg=gavg, count=count, search_type=search_type)
     elif search_type == 'globalSales':
         c.execute('SELECT * FROM games WHERE globalSales BETWEEN 10 AND 30')
         games = c.fetchall()
         c.execute('SELECT COUNT(idGame) FROM games WHERE globalSales BETWEEN 10 AND 30')
         div = c.fetchone()
+        count = div.get('COUNT(idGame)')
         avg = div.get('COUNT(idGame)')/total.get('COUNT(idGame)')
         gavg = "{:0%}".format(avg)
-        return render_template('sales.html', games=games, form=form, gavg=gavg, search_type=search_type)
+        return render_template('sales.html', games=games, form=form, gavg=gavg, count=count, search_type=search_type)
     else:
         c.execute('SELECT * FROM games')
         games = c.fetchall()
@@ -364,6 +368,27 @@ def min_requirements():
 @app.route('/structure', methods=['GET', 'POST'])
 def structure():
     return render_template('structure.html')
+
+
+@app.route('/newquery')
+def newquery():
+    c = mysql.connection.cursor()
+
+    c.execute('SELECT r.idsysRequire, s.idsteam, s.responseName, s.VRSupport, s.isFree, r.winReq, r.linuxReq, r.macReq FROM sysRequire r INNER JOIN steam s on r.idsysRequire=s.idsteam WHERE VRSupport = 1 AND isFree = 1')
+    query = c.fetchall()
+
+    return render_template('newquery.html', query=query)
+
+
+@app.route('/secondquery')
+def secondquery():
+    c = mysql.connection.cursor()
+
+    c.execute('SELECT * FROM games WHERE year BETWEEN 2000 AND 2016 AND publisher = "Nintendo" AND jpSales > naSales')
+    games = c.fetchall()
+
+    return render_template('seconquery.html', games=games)
+
 
 if __name__ == '__main__':
     app.secret_key='secret'
